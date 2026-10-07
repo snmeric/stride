@@ -1,0 +1,12 @@
+{
+  "name": "snmeric-mods",
+  "owner": { "name": "snmeric", "url": "https://github.com/snmeric" },
+  "metadata": { "description": "Claude Code mods by snmeric" },
+  "plugins": [
+    {
+      "name": "stride",
+      "source": "./plugins/stride",
+      "description": "Live progress bars and usage meters above the Claude Code prompt"
+    }
+  ]
+}
