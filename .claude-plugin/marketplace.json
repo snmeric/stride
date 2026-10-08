@@ -6,7 +6,7 @@
     {
       "name": "stride",
       "source": "./plugins/stride",
-      "description": "Live progress bars and usage meters above the Claude Code prompt"
+      "description": "Live pixel meters for the 5 hour and weekly usage limits above the Claude Code prompt"
     }
   ]
 }

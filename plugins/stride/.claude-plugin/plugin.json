@@ -1,7 +1,7 @@
 {
   "name": "stride",
   "version": "0.1.0",
-  "description": "Live progress bars above the Claude Code prompt: step dots, a pixel fill, usage meters for the 5 hour and weekly limits, and soft sounds for decision, error and done",
+  "description": "Live pixel meters above the Claude Code prompt for the 5 hour and weekly usage limits, with a soft tone when one runs low",
   "author": { "name": "snmeric", "url": "https://github.com/snmeric" },
   "license": "MIT",
   "types": "./types/index.d.ts"
