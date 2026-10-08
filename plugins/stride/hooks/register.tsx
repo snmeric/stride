@@ -8,7 +8,16 @@ const limits = atom({ plugin: 'stride', key: 'limits' } as const, [])
 const busy = atom({ plugin: 'stride', key: 'busy' } as const, false)
 const sign = atom({ plugin: 'stride', key: 'sign' } as const, null)
 
-const COLOR = { calm: '#A99EF2', behind: '#E09A1E', low: '#E5484D' }
+// a meter's colour follows how much of its window is left, traffic-light style: plenty, keep an eye on it, low,
+// very low, nearly gone (the last also beats the handle); `from` is the least left (in %) each status covers
+const STATUS = [
+  { from: 60, colour: '#5EC48C' },
+  { from: 30, colour: '#A5C95A' },
+  { from: 15, colour: '#E9C84A' },
+  { from: 5, colour: '#EF8E3C' },
+  { from: 0, colour: '#E5484D' },
+]
+const statusOf = (left: number) => STATUS.findIndex(s => left >= s.from)
 
 const esc = (s: string) => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] ?? c)
 const hash = (a: number, b: number, k: number) => {
@@ -179,6 +188,7 @@ const SIGN_GAP_MS = 3 * 60_000 // a surprise waits at least this long after the 
 
 type Row = {
   kind: string
+  status: number // index into STATUS; 0 is plenty left
   id: string
   name: string
   value: string
@@ -292,7 +302,7 @@ function rowSvg(row: Row, i: number, W: number, isBusy: boolean, signNow: { name
 
   return `<g transform="translate(${place.x.toFixed(1)} ${place.y})" class="${row.beat}${row.isSlow ? ' slow' : ''}">${colour}
 <text x="0" y="12" class="ul">${esc(row.name)}</text>${note}
-<text x="${W}" y="12" text-anchor="end" class="un">${esc(row.value)}<tspan class="ul" dx="6">${esc(row.detail)}</tspan></text>
+<text x="${W}" y="12" text-anchor="end" class="un"${row.status > 0 ? ` style="fill:${c}"` : ''}>${esc(row.value)}<tspan class="ul" dx="6">${esc(row.detail)}</tspan></text>
 ${track}
 <clipPath id="${id}k"><rect x="0" y="${TRACK_Y}" width="${fw.toFixed(1)}" height="${BH}" rx="${BH / 2}">${refill}</rect></clipPath>
 <g clip-path="url(#${id}k)"><rect x="0" y="${TRACK_Y}" width="${fw.toFixed(1)}" height="${BH}" fill="${c}" fill-opacity=".06"/><g class="mood">${pixels}</g>${signSvg(signNow, cols, i, c)}</g>${spent}${paceLine}${crumbs}${handle}</g>`
@@ -362,7 +372,7 @@ const rgb = (c: number[]) => `rgb(${c.join(',')})`
 const GREY = [112, 110, 120]
 const WHITE = [255, 255, 255]
 
-const LOW_ALARM = 8 // below this much left the handle beats red
+const LOW_ALARM = 5 // below this much left the handle beats red
 const REFILL_MS = 4000 // how long after a reset the meter still plays its refill
 // when each window last reset, so its meter fills up again from empty once
 const refilledAt = new Map<string, number>()
@@ -370,8 +380,8 @@ const refilledAt = new Map<string, number>()
 function limitRow(l: Limit, i: number, now: number, isBusy: boolean): Row {
   const left = Math.max(0, Math.min(100, 100 - l.used))
   const pace = paceLeft(l, now)
-  const isBehind = pace !== null && left < pace - 3
   const isLow = left < LOW_ALARM
+  const status = Math.max(0, statusOf(left))
   return {
     id: `u${i}`,
     kind: l.kind,
@@ -380,8 +390,9 @@ function limitRow(l: Limit, i: number, now: number, isBusy: boolean): Row {
     detail: untilReset(l.resetsAt, now),
     note: eta(l, now),
     fill: left,
-    color: isLow ? COLOR.low : left < 20 || isBehind ? COLOR.behind : COLOR.calm,
-    beat: isLow || (isBusy && isBehind) ? 'hot' : isBusy ? 'busy' : 'calm',
+    color: STATUS[status]?.colour ?? STATUS[0]!.colour,
+    status,
+    beat: isLow ? 'hot' : isBusy ? 'busy' : 'calm',
     isSlow: l.kind === 'seven_day',
     pace,
     isLow,
