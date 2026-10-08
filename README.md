@@ -1,6 +1,6 @@
 # stride
 
-Live progress bars above the Claude Code prompt. Claude breaks a task into steps, and you watch them fill in. Your 5 hour and weekly usage limits are shown underneath, with a pixel fill and a handle.
+Live pixel meters above the Claude Code prompt for your 5 hour and weekly usage limits. The dots breathe slowly while Claude is idle and speed up while it works, a dashed line marks where an even pace would put you, and the meter turns amber when you are spending faster than that and red when little is left. A soft tone plays once when a window drops below 20%.
 
 Based on [zycck/claude-mods](https://github.com/zycck/claude-mods) (plan-progress, MIT, by Kirill Serditov). Changes and additions by snmeric.
 
@@ -13,10 +13,7 @@ Based on [zycck/claude-mods](https://github.com/zycck/claude-mods) (plan-progres
 
 ## Commands
 
-- `/progress` toggles the bars
-- `/progress-demo` shows a demo bar
-- `/progress-sounds` plays the three sounds
-- `/progress-clear` removes all bars
+- `/meters` shows or hides the meters (the **Usage** button in the footer does the same)
 
 ## License
 
